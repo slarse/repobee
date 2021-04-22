@@ -206,12 +206,17 @@ class TestSetup:
         """It should be possible to use a subgroup as the target org."""
         gl, template_group, target_group = gitlab_and_groups()
         subgroup_name = "bestgroup"
-        subgroup_full_path = target_group.subgroups.create(
-            dict(name=subgroup_name, path=subgroup_name)
-        ).full_path
+        subgroup_full_path = f"{target_group.path}/{subgroup_name}"
+        gl.groups.create(
+            dict(
+                name=subgroup_name,
+                path=subgroup_name,
+                parent_id=target_group.id,
+            )
+        )
 
         base_args = [
-            arg if arg != ORG_NAME else subgroup_name for arg in BASE_ARGS
+            arg if arg != ORG_NAME else subgroup_full_path for arg in BASE_ARGS
         ]
 
         command = " ".join(
